@@ -82,11 +82,11 @@ func TestH1DIntegral(t *testing.T) {
 	}
 	integralu := h1.Integral(math.Inf(-1), h1.Axis().UpperEdge())
 	if integralu != 6.6 {
-		t.Errorf("expected H1D.Integral(math.Inf(-1), h1.axis.LowerEdge()) == 6.6 (got %v)\n", integralu)
+		t.Errorf("expected H1D.Integral(math.Inf(-1), h1.axis.UpperEdge()) == 6.6 (got %v)\n", integralu)
 	}
 	integralo := h1.Integral(h1.Axis().LowerEdge(), math.Inf(+1))
 	if integralo != 7.4 {
-		t.Errorf("expected H1D.Integral(math.Inf(-1), h1.axis.LowerEdge()) == 7.4 (got %v)\n", integralo)
+		t.Errorf("expected H1D.Integral(h1.Axis().LowerEdge(), math.Inf(+1)) == 7.4 (got %v)\n", integralo)
 	}
 	integralrange := h1.Integral(0.5, 5.5)
 	if integralrange != 2.7 {
