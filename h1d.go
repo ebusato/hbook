@@ -141,10 +141,10 @@ func (h *H1D) Integral(args ...float64) float64 {
 		min = args[0]
 		max = args[1]
 		if min > max {
-			panic("min  > max")
+			panic("hbook: min  > max")
 		}
 	default:
-		panic("Integral takes either 0 or 2 arguments")
+		panic("hbook: invalid number of arguments. expected 0 or 2.")
 	}
 
 	integral := 0.
