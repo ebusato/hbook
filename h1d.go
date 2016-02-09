@@ -7,6 +7,7 @@ package hbook
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"io"
 	"math"
 
@@ -119,6 +120,53 @@ func (h *H1D) DataRange() (xmin, xmax, ymin, ymax float64) {
 		}
 	}
 	return xmin, xmax, ymin, ymax
+}
+
+// Scale scales the content of each bin by the given factor.
+func (h *H1D) Scale(factor float64) {
+	for i := range h.allbins {
+		h.allbins[i].Scale(factor)
+	}
+}
+
+// Integral computes the integral of the histogram. By default, only in-range bins are included.
+// Parameters can be :
+//   - the string "all": computes integral including underflow and overflow bins
+//   - two consecutive floats delimiting the range in which the integral is computed
+func (h *H1D) Integral(v ...interface{}) float64 {
+	allbins := false
+	min, max := h.axis.LowerEdge(), h.axis.UpperEdge()
+	for i := 0; i < len(v); i++ {
+		vi := v[i]
+		switch vit := vi.(type) {
+		case string:
+			if vi == "all" {
+				allbins = true
+			}
+		case float64:
+			if i == len(v)-1 {
+				panic("missing maximum value")
+			}
+			min = vi.(float64)
+			max = v[i+1].(float64)
+			i += 1
+		default:
+			fmt.Printf("unexpected type %T\n", vit)
+		}
+	}
+
+	integral := 0.
+	for i := range h.bins {
+		binloweredge := h.axis.BinLowerEdge(i)
+		if allbins || (binloweredge >= min && binloweredge <= max) {
+			integral += h.bins[i].sw
+		}
+	}
+	if allbins {
+		integral += h.allbins[0].sw
+		integral += h.allbins[1].sw
+	}
+	return integral
 }
 
 // Mean returns the mean of this histogram.
