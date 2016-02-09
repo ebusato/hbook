@@ -76,9 +76,17 @@ func TestH1DIntegral(t *testing.T) {
 	if integral != 5.3 {
 		t.Errorf("expected H1D.Integral() == 5.3 (got %v)\n", integral)
 	}
-	integralall := h1.Integral("all")
+	integralall := h1.Integral(math.Inf(-1), math.Inf(+1))
 	if integralall != 8.7 {
-		t.Errorf("expected H1D.Integral(\"all\") == 8.7 (got %v)\n", integralall)
+		t.Errorf("expected H1D.Integral(math.Inf(-1), math.Inf(+1)) == 8.7 (got %v)\n", integralall)
+	}
+	integralu := h1.Integral(math.Inf(-1), h1.Axis().UpperEdge())
+	if integralu != 6.6 {
+		t.Errorf("expected H1D.Integral(math.Inf(-1), h1.axis.LowerEdge()) == 6.6 (got %v)\n", integralu)
+	}
+	integralo := h1.Integral(h1.Axis().LowerEdge(), math.Inf(+1))
+	if integralo != 7.4 {
+		t.Errorf("expected H1D.Integral(math.Inf(-1), h1.axis.LowerEdge()) == 7.4 (got %v)\n", integralo)
 	}
 	integralrange := h1.Integral(0.5, 5.5)
 	if integralrange != 2.7 {

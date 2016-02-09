@@ -7,7 +7,6 @@ package hbook
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 	"io"
 	"math"
 
@@ -133,37 +132,32 @@ func (h *H1D) Scale(factor float64) {
 // Parameters can be :
 //   - the string "all": computes integral including underflow and overflow bins
 //   - two consecutive floats delimiting the range in which the integral is computed
-func (h *H1D) Integral(v ...interface{}) float64 {
-	allbins := false
-	min, max := h.axis.LowerEdge(), h.axis.UpperEdge()
-	for i := 0; i < len(v); i++ {
-		vi := v[i]
-		switch vit := vi.(type) {
-		case string:
-			if vi == "all" {
-				allbins = true
-			}
-		case float64:
-			if i == len(v)-1 {
-				panic("missing maximum value")
-			}
-			min = vi.(float64)
-			max = v[i+1].(float64)
-			i += 1
-		default:
-			fmt.Printf("unexpected type %T\n", vit)
+func (h *H1D) Integral(args ...float64) float64 {
+	min, max := 0., 0.
+	switch len(args) {
+	case 0:
+		min, max = h.axis.LowerEdge(), h.axis.UpperEdge()
+	case 2:
+		min = args[0]
+		max = args[1]
+		if min > max {
+			panic("min  > max")
 		}
+	default:
+		panic("Integral takes either 0 or 2 arguments")
 	}
 
 	integral := 0.
 	for i := range h.bins {
 		binloweredge := h.axis.BinLowerEdge(i)
-		if allbins || (binloweredge >= min && binloweredge <= max) {
+		if binloweredge >= min && binloweredge <= max {
 			integral += h.bins[i].sw
 		}
 	}
-	if allbins {
+	if math.IsInf(min, -1) {
 		integral += h.allbins[0].sw
+	}
+	if math.IsInf(max, +1) {
 		integral += h.allbins[1].sw
 	}
 	return integral
